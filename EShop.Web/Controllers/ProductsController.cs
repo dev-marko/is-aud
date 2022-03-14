@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using EShop.Web.Data;
 using EShop.Web.Models.Domain;
+using EShop.Web.Models.DTO;
+using System.Security.Claims;
+using EShop.Web.Models.Relations;
 
 namespace EShop.Web.Controllers
 {
@@ -149,6 +152,59 @@ namespace EShop.Web.Controllers
         private bool ProductExists(Guid id)
         {
             return _context.Products.Any(e => e.Id == id);
+        }
+
+        public async Task<IActionResult> AddProductToCart(Guid id)
+        {
+            var product = await _context.Products.Where(z => z.Id == id).FirstOrDefaultAsync();
+
+            var result = new AddToShoppingCartDto
+            {
+                SelectedProduct = product,
+                SelectedProductId = product.Id,
+                Quantity = 1
+            };
+
+            return View(result);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddProductToCart(AddToShoppingCartDto model)
+        {
+            var product = await _context.Products.Where(z => z.Id == model.SelectedProductId).FirstOrDefaultAsync();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var loggedInUser = await _context.Users.Where(z => z.Id == userId)
+                .Include(z => z.UserCart)
+                .Include("UserCart.ProductInShoppingCart")
+                .FirstOrDefaultAsync();
+
+            var userCart = loggedInUser.UserCart;
+
+            if (product != null && loggedInUser != null && userCart != null)
+            {
+                var itemToAdd = new ProductInShoppingCart
+                {
+                    ShoppingCart = userCart,
+                    Product = product,
+                    ProductId = product.Id,
+                    ShoppingCartId = userCart.Id,
+                    Quantity = model.Quantity
+                };
+
+                _context.Add(itemToAdd);
+
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Products");
+            }
+            else
+            {
+                return View(model);
+            }
+
         }
     }
 }

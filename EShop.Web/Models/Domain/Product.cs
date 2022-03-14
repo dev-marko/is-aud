@@ -20,5 +20,6 @@ namespace EShop.Web.Models.Domain
         public double ProductPrice { get; set; }
         public double ProductRating { get; set; }
         public virtual ICollection<ProductInShoppingCart> ProductInShoppingCart { get; set; }
+        public virtual ICollection<ProductInOrder> Orders { get; set; }
     }
 }

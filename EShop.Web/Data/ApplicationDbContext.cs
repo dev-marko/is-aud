@@ -47,6 +47,7 @@ namespace EShop.Web.Data
              */
             builder.Entity<ProductInShoppingCart>()
                 .HasKey(z => new { z.ProductId, z.ShoppingCartId });
+
             /**
              * Foreign key to the ShoppingCart for a Product 
              */
@@ -63,6 +64,28 @@ namespace EShop.Web.Data
                 .WithMany(z => z.ProductInShoppingCart)
                 .HasForeignKey(z => z.ProductId);
 
+            /**
+             * Composite primary key for the ProductInOrder
+             * many-to-many relationship class between Product and Order
+             */
+            builder.Entity<ProductInOrder>()
+                .HasKey(z => new { z.ProductId, z.OrderId });
+
+            /**
+            * Foreign key to the Product for a Order 
+            */
+            builder.Entity<ProductInOrder>()
+                .HasOne(z => z.SelectedProduct)
+                .WithMany(z => z.Orders)
+                .HasForeignKey(z => z.ProductId);
+
+            /**
+             * Foreign key to the Order for a Product 
+             */
+            builder.Entity<ProductInOrder>()
+                .HasOne(z => z.UserOrder)
+                .WithMany(z => z.Products)
+                .HasForeignKey(z => z.OrderId);
 
         }
     }
