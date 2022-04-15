@@ -17,6 +17,9 @@ namespace EShop.Repository
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ShoppingCart> ShoppingCarts { get; set; }
         public virtual DbSet<ProductInShoppingCart> ProductInShoppingCarts { get; set; }
+        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<ProductInOrder> ProductInOrders { get; set; }
+        
 
         // Fluent Configuration API
         protected override void OnModelCreating(ModelBuilder builder)
@@ -43,8 +46,9 @@ namespace EShop.Repository
              * Composite primary key for the ProductInShoppingCart
              * many-to-many relationship class between Product and ShoppingCart
              */
-            builder.Entity<ProductInShoppingCart>()
-                .HasKey(z => new { z.ProductId, z.ShoppingCartId });
+            // Napravivme ProductInShoppingCart da nasleduva od BaseEntity veke si ima svoj ID ne mu treba composite key
+            //builder.Entity<ProductInShoppingCart>()
+            //    .HasKey(z => new { z.ProductId, z.ShoppingCartId });
 
             /**
              * Foreign key to the ShoppingCart for a Product 
@@ -62,12 +66,18 @@ namespace EShop.Repository
                 .WithMany(z => z.ProductInShoppingCart)
                 .HasForeignKey(z => z.ProductId);
 
+
+            builder.Entity<Order>()
+                .Property(z => z.Id)
+                .ValueGeneratedOnAdd();
+
             /**
              * Composite primary key for the ProductInOrder
              * many-to-many relationship class between Product and Order
              */
-            builder.Entity<ProductInOrder>()
-                .HasKey(z => new { z.ProductId, z.OrderId });
+            // Napravivme ProductInOrder da nasleduva od BaseEntity veke si ima svoj ID ne mu treba composite key
+            //builder.Entity<ProductInOrder>()
+            //    .HasKey(z => new { z.ProductId, z.OrderId });
 
             /**
             * Foreign key to the Product for a Order 

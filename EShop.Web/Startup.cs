@@ -44,6 +44,7 @@ namespace EShop.Web
 
             // Za servisi koristime add transient
             services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IShoppingCartService, ShoppingCartService>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
