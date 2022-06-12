@@ -102,6 +102,7 @@ namespace EShop.Service.Implementation
                     .ProductInShoppingCart
                     .Select(z => new ProductInOrder
                     {
+                        Id = Guid.NewGuid(),
                         OrderId = orderItem.Id,
                         ProductId = z.Product.Id,
                         SelectedProduct = z.Product,

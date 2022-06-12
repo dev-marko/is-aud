@@ -3,6 +3,7 @@ using EShop.Domain.DomainModels.Relations;
 using EShop.Domain.DTO;
 using EShop.Repository.Interface;
 using EShop.Service.Interface;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,16 +17,19 @@ namespace EShop.Service.Implementation
         private readonly IRepository<Product> productRepository;
         private readonly IRepository<ProductInShoppingCart> productInShoppingCartRepository;
         private readonly IUserRepository userRepository;
+        private readonly ILogger<ProductService> _logger;
         public ProductService
             (
             IRepository<Product> productRepository, 
             IUserRepository userRepository, 
-            IRepository<ProductInShoppingCart> productInShoppingCartRepository
+            IRepository<ProductInShoppingCart> productInShoppingCartRepository,
+            ILogger<ProductService> _logger
             )
         {
             this.productRepository = productRepository;
             this.userRepository = userRepository;
             this.productInShoppingCartRepository = productInShoppingCartRepository;
+            this._logger = _logger;
         }
 
         public bool AddToShoppingCart(AddToShoppingCartDto item, string userID)
@@ -41,6 +45,7 @@ namespace EShop.Service.Implementation
                 {
                     var itemToAdd = new ProductInShoppingCart
                     {
+                        Id = Guid.NewGuid(),
                         ShoppingCart = userCart,
                         Product = product,
                         ProductId = product.Id,
@@ -49,10 +54,12 @@ namespace EShop.Service.Implementation
                     };
 
                     this.productInShoppingCartRepository.Insert(itemToAdd);
+                    _logger.LogInformation("Product was successfully added into ShoppingCart.");
                     return true;
                 }
                 return false;
             }
+            _logger.LogInformation("Something was wrong. ProductId or UserShoppingCart may be unavailable.");
             return false;
         }
 
@@ -68,6 +75,7 @@ namespace EShop.Service.Implementation
 
         public List<Product> GetAllProducts()
         {
+            _logger.LogInformation("GetAllProducts was called!");
             return this.productRepository.GetAll().ToList();
         }
 
